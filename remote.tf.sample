@@ -1,0 +1,20 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+  required_version = "~> 1.6.1"
+  backend s3 { 
+    bucket         = "BUCKET_NAME_FROM_OUTPUT" 
+    key            = "REPLACE/WITH/PATH/TO/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "DYNAMODB_TABLE_NAME"
+  }
+}
+
+module "core_remote_backend" {
+  source = "./modules/s3-backend"
+}

@@ -32,3 +32,18 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+
+.terraform.lock.hcl
+backend.config 
+
+# Ignore environment filesi
+*.env
+
+# Ignore temporary tempaltes
+remote.tf 
+local.tf 
+tf-meta 
+
+
+

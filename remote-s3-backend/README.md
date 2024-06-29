@@ -15,7 +15,7 @@ You can use this module to create a remote s3 backend for your Terraform configu
 To get started clone this repo:
 
 ```bash
-git clone ...
+git clone git@github.com:wholestax/terraform-recipes.git
 ```
 
 To set up your remote backend you will take the following steps:
@@ -102,7 +102,7 @@ The result will be something like:
 
 If you don't have `jq` installed you will have to find these values in the local state file or your AWS account.
 
-Now you must edit `main.tf` to configure the backend with the appropriate values for the bucket name, DyanamoDB table id, and the S3 key you want to use for the state file.
+Now you must edit `main.tf` to configure the backend with the appropriate values for the bucket name, DynamoDB table id, and the S3 key you want to use for the state file.
 
 ### Create Backend Config file
 
@@ -114,9 +114,11 @@ You can do so with a command like this:
 echo 'kms_key = "REPLACE_WITH_KMS_KEY_ID"' > backend.config
 ```
 
+Make sure to add the `backend.config` file to your `.gitignore` file so that it is not committed to your repo.
+
 ## Migrate Local State to Remote Backend
 
-Once you make the above edits to your `root/meta/main.tf` file, it should look something like this:
+Once you make the above edits to your `main.tf` file, it should look something like this:
 
 ```hcl
 terraform {
@@ -154,6 +156,7 @@ terraform --backend-config="kms_key=${KMS_KEY_ID_SECRET}"
 ```
 
 You will be asked to confirm that you would like to migrate your local state to the s3 remote state backend.
+q
 
 ## Conclusion
 

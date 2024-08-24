@@ -12,3 +12,8 @@ output "dynamodb_table" {
   description = "The DynamoDB Table used for locking state"
   value       = module.remote_state.dynamodb_table
 }
+
+output "terraform_user" {
+  description = "The IAM user that will be used by Terraform to access the remote state."
+  value       = aws_iam_user.terraform.name
+}

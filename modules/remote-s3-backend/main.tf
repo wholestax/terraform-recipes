@@ -3,25 +3,18 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 5.0"
+      configuration_aliases : [aws.default, aws.replica]
     }
   }
 }
 
-provider "aws" {
-  region = var.region
-}
-
-provider "aws" {
-  alias  = "replica"
-  region = var.replica_region
-}
 
 module "remote_state" {
   source  = "nozaq/remote-state-s3-backend/aws"
   version = "1.5.0"
 
   providers = {
-    aws         = aws
+    aws         = aws.default
     aws.replica = aws.replica
   }
 

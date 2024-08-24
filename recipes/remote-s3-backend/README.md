@@ -10,31 +10,44 @@ Other outputs provided by `nozaq/remote-state-s3-backend/aws` are not output by 
 
 ## Instructions
 
-You can use this module to create a remote s3 backend for your Terraform configuration.
-
-To get started clone this repo:
-
-```bash
-git clone git@github.com:wholestax/terraform-recipes.git
-```
-
-To set up your remote backend you will take the following steps:
+To set up your remote s3 backend you will take the following steps:
 
 - Create AWS Resources using a Local Backend
 - Configure Terraform to use the newly created S3 Remote Backend
 - Migrate your state to the Remote backend
 - A KMS key for encrypting the S3 bucket
 
-Change directories into the root of this repo.
+### Prerequisites
 
-### Create Remote Backend
+You will need the following tools installed on your system:
 
-Use local state template to create AWS resources
+- [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- [jq](https://stedolan.github.io/jq/download/) (optional)
+
+You will also need an [AWS Account](https://aws.amazon.com/free/) and access keys for an account with sufficient permissions to create the resources needed for the remote backend.
+
+### Step 1) To get started clone this repo:
+
+```bash
+git clone git@github.com:wholestax/terraform-recipes.git
+```
+
+### Step 2) Change directories into the `remote-s3-backend` directory:
+
+```bash
+cd terraform-recipes/remote-s3-backend/
+```
+
+### Step 3) Create Remote Backend
+
+Use the `local.tf.sample` file to create the resources needed for the remote backend. This file stores the Terraform state in a local backend.
 
 ```bash
 # Copy the provided template
 cp local.tf.sample local.tf
 
+### 4) Create the resources
 # Initialize the terraform directory
 terraform init
 
@@ -53,7 +66,7 @@ Now we have:
 
 - S3 Bucket and Repblica Bucket to store the state
 - DynamobDB Table to handle locking
-- IAM Resources to give manage access to the remote backend
+- IAM Resources to give management access to the remote backend
 
 The Local state has also been updated and contains configuration info we need for the next step.
 

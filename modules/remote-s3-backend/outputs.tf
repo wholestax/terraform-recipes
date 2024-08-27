@@ -13,12 +13,8 @@ output "dynamodb_table" {
   value       = module.remote_state.dynamodb_table
 }
 
-output "terraform_iam_policy_arn" {
-  description = "The policy ARN that grants access to the remote state bucket."
-  value       = module.remote_state.terraform_iam_policy.arn
+output "access_policy" {
+  description = "The policy that grants access to the remote state bucket."
+  value       = module.remote_state.terraform_iam_policy
 }
 
-output "terraform_user" {
-  description = "The IAM user that will be used by Terraform to access the remote state."
-  value       = aws_iam_user.terraform.name
-}

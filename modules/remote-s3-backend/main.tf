@@ -19,15 +19,3 @@ module "remote_state" {
   }
 
 }
-
-resource "aws_iam_user" "terraform" {
-  name = "TerraformUser"
-  tags = {
-    ManagedBy = "terraform"
-  }
-}
-
-resource "aws_iam_user_policy_attachment" "remote_state_access" {
-  user       = aws_iam_user.terraform.name
-  policy_arn = module.remote_state.terraform_iam_policy.arn
-}

@@ -1,12 +1,6 @@
 # s3 Remote Backend
 
-This module uses `nozaq/remote-state-s3-backend/aws` to create a remote backend for this terraform project.
-
-It takes no inputs.
-
-It outputs only the `state_bucket`, `dynamodb_table` and `kms_key` which are required for using the remote backend.
-
-Other outputs provided by `nozaq/remote-state-s3-backend/aws` are not output by this module.
+This recipe uses `nozaq/remote-state-s3-backend/aws` to create a remote backend for this terraform project.
 
 ## Instructions
 
@@ -24,30 +18,37 @@ You will need the following tools installed on your system:
 - [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 - [jq](https://stedolan.github.io/jq/download/) (optional)
+- curl
+
+You can also use [TF Terminal](https://github.com/wholestax/tf-terminal) which creates a docker environment that makes it easy to execute your Terraform templates
 
 You will also need an [AWS Account](https://aws.amazon.com/free/) and access keys for an account with sufficient permissions to create the resources needed for the remote backend.
 
-### Step 1) To get started clone this repo:
+### Step 1) Create Terraform template
+
+Create a new directory with the files from this directory:
 
 ```bash
-git clone git@github.com:wholestax/terraform-recipes.git
+mkdir remote-s3-backend && cd remote-s3-backend
+
+curl -o main.tf https://raw.githubusercontent.com/wholestax/terraform-recipes/main/recipes/remote-s3-backend/main.tf
+curl -o local_override.tf https://raw.githubusercontent.com/wholestax/terraform-recipes/main/recipes/remote-s3-backend/local_override.tf
+curl -o outputs.tf https://raw.githubusercontent.com/wholestax/terraform-recipes/main/recipes/remote-s3-backend/outputs.tf
 ```
 
-### Step 2) Change directories into the `remote-s3-backend` directory:
+The `local_override.tf` file, overrides the `main.tf` file to use a local backend. We will migrate the local state to the remote backend aftter the infrastructure is created.
 
-```bash
-cd terraform-recipes/remote-s3-backend/
-```
+### Step 2) Create AWS User
+
+You need to have an AWS user with sufficeint permissions to create the resources included in the Terraform template. You can use [this policy document](../../modules/remote-state-meta/remote-state-policy.json). Add it through the AWS console or AWS CLI and attach it to the user a use of your choice. Create a new one if needed.
+
+Use the AWS credentials for this user when executing Terraform commands.
 
 ### Step 3) Create Remote Backend
 
-Use the `local.tf.sample` file to create the resources needed for the remote backend. This file stores the Terraform state in a local backend.
+Now you can create the infrastructure for the remote backend:
 
 ```bash
-# Copy the provided template
-cp local.tf.sample local.tf
-
-### 4) Create the resources
 # Initialize the terraform directory
 terraform init
 
@@ -76,10 +77,8 @@ First, configure Terraform to use the new remote backend.
 
 ```bash
 # We don't need the local backend any more so remove it
-rm local.tf
+rm local_override.tf
 
-# Setup the remote backend
-cp remote.tf.sample main.tf
 ```
 
 The `main.tf` file you just created contains the following backend block:
@@ -94,7 +93,7 @@ The `main.tf` file you just created contains the following backend block:
   }
 ```
 
-You need to edit this block and replace the values with the ones that reflect the resources you just created. These values will be present in the `/root/meta/terraform.tfstate` files that was created by the `terraform apply` command.
+You need to edit this block and replace the values with the ones that reflect the resources you just created. These values will be present in the `terraform.tfstate` files that was created by the `terraform apply` command.
 
 If you have `jq` installed, you can retrieve the values you need from the terraform state file with the following command:
 
@@ -124,7 +123,7 @@ We will not put the `kms_key` id in the `main.tf` file because it is sensitive i
 You can do so with a command like this:
 
 ```bash
-echo 'kms_key = "REPLACE_WITH_KMS_KEY_ID"' > backend.config
+echo 'kms_key_id="REPLACE_WITH_KMS_KEY_ID"' > backend.config
 ```
 
 Make sure to add the `backend.config` file to your `.gitignore` file so that it is not committed to your repo.
@@ -144,7 +143,7 @@ terraform {
   required_version = "~> 1.6.1"
   backend s3 {
     bucket         = "fake-tf-remote-state30231a2d214ret7453000324002"
-    key            = "meta/prod/terraform.tfstate"
+    key            = "boostrap/terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true
     dynamodb_table = "fake-tf-remote-state-lock"
@@ -156,16 +155,16 @@ module "core_remote_backend" {
 }
 ```
 
-Now you can migrate your state from your local backend to your new remote backend. Run the following command from the `root/meta` directory
+Now you can migrate your state from your local backend to your new remote backend. Run the following command from the the root directory
 
 ```bash
-terraform init --backend-config=./backend.config
+terraform init -migrate-state --backend-config=./backend.config
 ```
 
 If you would rather put the KMS key in an environment variable rather than a file, you can also run the command like this:
 
 ```bash
-terraform --backend-config="kms_key=${KMS_KEY_ID_SECRET}"
+terraform init -migrate-state --backend-config="kms_key=${KMS_KEY_ID_SECRET}"
 ```
 
 You will be asked to confirm that you would like to migrate your local state to the s3 remote state backend.

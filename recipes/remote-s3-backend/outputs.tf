@@ -1,14 +1,21 @@
+
 output "kms_key" {
   description = "The KMS customer master key to encrypt state buckets."
-  value       = module.core_remote_backend.kms_key.key_id
+  value       = module.remote_state.kms_key.key_id
 }
 
 output "state_bucket" {
   description = "The S3 bucket to store the remote state file."
-  value       = module.core_remote_backend.state_bucket.bucket
+  value       = module.remote_state.state_bucket.bucket
 }
 
 output "dynamodb_table" {
   description = "The DynamoDB Table used for locking state"
-  value       = module.core_remote_backend.dynamodb_table
+  value       = module.remote_state.dynamodb_table
 }
+
+output "terraform_user" {
+  description = "The IAM user that will be used by Terraform to access the remote state."
+  value       = aws_iam_user.terraform.name
+}
+
